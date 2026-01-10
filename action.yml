@@ -1,5 +1,5 @@
 name: 'Get GitHub Token from SFP Server'
-description: 'Fetches a GitHub installation token from SFP Server for repository authentication. Provides secure, scoped access tokens with automatic retry and caching.'
+description: 'Fetches a GitHub installation token from SFP Server for secure repository authentication'
 author: 'flxbl-io'
 
 branding:
