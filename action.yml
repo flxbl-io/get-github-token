@@ -3,7 +3,7 @@ description: 'Fetches a GitHub installation token from SFP Server for secure rep
 author: 'flxbl-io'
 
 branding:
-  icon: 'key'
+  icon: 'anchor'
   color: 'blue'
 
 inputs:
