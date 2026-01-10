@@ -1,0 +1,27 @@
+name: 'Get GitHub Token from SFP Server'
+description: 'Fetches a GitHub installation token from SFP Server for repository authentication. Provides secure, scoped access tokens with automatic retry and caching.'
+author: 'flxbl-io'
+
+branding:
+  icon: 'key'
+  color: 'blue'
+
+inputs:
+  sfp-server-url:
+    description: 'The URL to the SFP server instance (e.g., https://sfp.example.com)'
+    required: true
+  sfp-server-token:
+    description: 'The SFP server authentication token (application token)'
+    required: true
+  repository:
+    description: 'The repository name in owner/repo format'
+    required: false
+    default: '${{ github.repository }}'
+
+outputs:
+  token:
+    description: 'The generated GitHub installation token (masked in logs)'
+
+runs:
+  using: 'node20'
+  main: 'dist/index.js'

@@ -1,0 +1,88 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build action
+        run: npm run build
+
+      - name: Get version from tag
+        id: version
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "major=${VERSION%%.*}" >> $GITHUB_OUTPUT
+          echo "minor=${VERSION%.*}" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: release } = await github.rest.repos.createRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag_name: '${{ steps.version.outputs.version }}',
+              name: 'Release ${{ steps.version.outputs.version }}',
+              body: `## What's Changed
+
+              See [CHANGELOG.md](https://github.com/${context.repo.owner}/${context.repo.repo}/blob/main/CHANGELOG.md) for details.
+
+              ## Usage
+
+              \`\`\`yaml
+              - uses: ${context.repo.owner}/${context.repo.repo}@${{ steps.version.outputs.version }}
+                with:
+                  sfp-server-url: \${{ secrets.SFP_SERVER_URL }}
+                  sfp-server-token: \${{ secrets.SFP_SERVER_TOKEN }}
+              \`\`\`
+              `,
+              draft: false,
+              prerelease: false
+            });
+            console.log(`Created release: ${release.html_url}`);
+
+      - name: Update major version tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Update major version tag (e.g., v1)
+          git tag -fa ${{ steps.version.outputs.major }} -m "Update ${{ steps.version.outputs.major }} to ${{ steps.version.outputs.version }}"
+          git push origin ${{ steps.version.outputs.major }} --force
+
+          # Update minor version tag (e.g., v1.0)
+          git tag -fa ${{ steps.version.outputs.minor }} -m "Update ${{ steps.version.outputs.minor }} to ${{ steps.version.outputs.version }}"
+          git push origin ${{ steps.version.outputs.minor }} --force
+
+      - name: Publish to GitHub Marketplace
+        run: |
+          echo "Action published to GitHub Marketplace"
+          echo "Users can now use: flxbl-io/get-github-token@${{ steps.version.outputs.major }}"

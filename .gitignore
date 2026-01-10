@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+
+# Build output (keep dist/ committed for action to work)
+# dist/
+
+# TypeScript build info
+*.tsbuildinfo
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test coverage
+coverage/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Temporary files
+tmp/
+temp/
+
+
+#Ignore vscode AI rules
+.github/instructions/codacy.instructions.md
